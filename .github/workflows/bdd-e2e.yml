@@ -1,0 +1,49 @@
+name: bdd-e2e
+
+on:
+  push:
+    paths:
+      - 'test/bdd/**'
+      - '.github/workflows/bdd-e2e.yml'
+      - 'Dockerfile'
+      - 'scripts/run-bdd.sh'
+  pull_request:
+    paths:
+      - 'test/bdd/**'
+      - '.github/workflows/bdd-e2e.yml'
+      - 'Dockerfile'
+      - 'scripts/run-bdd.sh'
+  workflow_dispatch:
+
+jobs:
+  github-pages-bdd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r test/bdd/requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Run BDD smoke test
+        env:
+          BASE_URL: https://realagiorganization.github.io/vlc/
+        run: |
+          python -m behave test/bdd/features
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages-bdd-artifacts
+          path: test/bdd/artifacts
+          if-no-files-found: warn

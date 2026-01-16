@@ -60,3 +60,6 @@ xcodeproj/
 !buildsystem/
 !build.rs
 !extras/package/apple/build.sh
+
+# BDD artifacts
+test/bdd/artifacts/
